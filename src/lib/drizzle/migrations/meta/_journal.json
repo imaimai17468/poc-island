@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1782314693955,
+      "tag": "0000_lyrical_retro_girl",
+      "breakpoints": true
+    }
+  ]
+}

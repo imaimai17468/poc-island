@@ -1,0 +1,6 @@
+{
+  "entry": ["src/ssr.tsx", "src/client.tsx", "src/routes/**/*.{ts,tsx}"],
+  "project": ["src/**/*.{ts,tsx}"],
+  "ignore": ["src/routeTree.gen.ts", "src/env.d.ts"],
+  "ignoreDependencies": ["tw-animate-css"]
+}
