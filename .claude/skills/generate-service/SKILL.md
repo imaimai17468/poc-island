@@ -1,7 +1,8 @@
 ---
 name: generate-service
-description: Generate a mini-service from a prompt. Spawns a worktree agent that scaffolds a Hono app on Cloudflare Workers, starts it locally, and registers it in the Gallery. Use this whenever the user wants to create a new mini-service.
+description: Generate a mini-service from a prompt. Spawns a worktree agent that scaffolds a Hono app on Cloudflare Workers, starts it locally, and registers it in the Gallery. Use this whenever the user wants to create a new mini-service or app — including when they describe an app idea without explicitly invoking this skill.
 user_invocable: true
+autoTrigger: true
 ---
 
 # Generate Service

@@ -134,7 +134,7 @@ POST to `/api/services`:
 
 ### Generating a mini-service
 
-Use the `/generate-service` skill. It automates the full flow: worktree agent spawn → Hono app scaffold → local start → Gallery registration. Never generate a service manually — always go through the skill so port assignment and registration are consistent.
+Use the `/generate-service` skill. It automates the full flow: worktree agent spawn → Hono app scaffold → local start → Gallery registration. This skill auto-triggers when the user describes an app or service to build (e.g. "カウンターアプリを作って", "TODO app", "make a timer") — the user does not need to invoke it explicitly. Never generate a service manually — always go through the skill so port assignment and registration are consistent.
 
 ### Quality gates
 
