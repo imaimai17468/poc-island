@@ -92,12 +92,16 @@ Claude Code セッション内でアプリの説明を入力するだけ（`/gen
 
 サービス詳細を取得。
 
+### `DELETE /api/services/:id`
+
+サービスを削除。
+
 ## Pages
 
 | Route | Description |
 |-------|-------------|
-| `/` | サービス一覧（カードグリッド） |
-| `/services/:id` | サービス詳細 + iframe プレビュー |
+| `/` | サービス一覧（カードグリッド、5秒ごと自動更新） |
+| `/services/:id` | サービス詳細 + iframe プレビュー + 削除 |
 
 ## License
 
