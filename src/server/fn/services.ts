@@ -24,3 +24,18 @@ export const getServiceFn = createServerFn({ method: "GET" })
       .limit(1);
     return result[0] ?? null;
   });
+
+export const deleteServiceFn = createServerFn({ method: "POST" })
+  .validator((data: unknown) => {
+    if (typeof data !== "string") throw new Error("Expected string id");
+    return data;
+  })
+  .handler(async ({ data: id }) => {
+    const db = getDb();
+    const result = await db
+      .delete(services)
+      .where(eq(services.id, id))
+      .returning();
+    if (result.length === 0) throw new Error("Service not found");
+    return { success: true, id };
+  });

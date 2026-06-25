@@ -1,7 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useCallback, useState } from "react";
+import { ArrowLeft, ExternalLink, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getServiceFn } from "@/server/fn/services";
+import { deleteServiceFn, getServiceFn } from "@/server/fn/services";
 
 export const Route = createFileRoute("/services/$id")({
   loader: async ({ params }) => {
@@ -14,15 +15,39 @@ export const Route = createFileRoute("/services/$id")({
 
 function ServiceDetailComponent() {
   const { service } = Route.useLoaderData();
+  const navigate = useNavigate();
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = useCallback(() => {
+    if (!window.confirm(`"${service.name}" を削除しますか？`)) return;
+    setDeleting(true);
+    void deleteServiceFn({ data: service.id })
+      .then(() => navigate({ to: "/" }))
+      .catch((err: unknown) => {
+        setDeleting(false);
+        window.alert(
+          `削除に失敗しました: ${err instanceof Error ? err.message : "Unknown error"}`
+        );
+      });
+  }, [service.id, service.name, navigate]);
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between">
         <Button variant="ghost" size="sm" asChild>
           <Link to="/">
             <ArrowLeft className="size-4" />
             Back
           </Link>
+        </Button>
+        <Button
+          variant="destructive"
+          size="sm"
+          disabled={deleting}
+          onClick={handleDelete}
+        >
+          <Trash2 className="size-4" />
+          {deleting ? "Deleting..." : "Delete"}
         </Button>
       </div>
 

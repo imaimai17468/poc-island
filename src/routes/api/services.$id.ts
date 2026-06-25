@@ -20,6 +20,19 @@ export const Route = createFileRoute("/api/services/$id")({
 
         return Response.json(result[0]);
       },
+      DELETE: async ({ params }) => {
+        const db = getDb();
+        const result = await db
+          .delete(services)
+          .where(eq(services.id, params.id))
+          .returning();
+
+        if (result.length === 0) {
+          return Response.json({ error: "Not found" }, { status: 404 });
+        }
+
+        return Response.json({ success: true, id: params.id });
+      },
     },
   },
 });
