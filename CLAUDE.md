@@ -25,7 +25,7 @@ Your training data goes stale. Outdated guidance is worse than no guidance.
 - Answering "how does X work" for tools with versions
 - A user names a specific external tool or action and you're about to describe its behavior
 - Suggesting a dependency or approach the user hasn't already chosen
-- **Before writing any import path or library/framework/SDK access pattern from memory, verify the current shape against official docs or source first** — how to read a binding, load config, register a handler, instantiate a client. These reshape between versions. Catching yourself thinking "I know how this works" or "you can only do it this way" is the cue to check, not to skip checking — that confident half-memory is the #1 source of silently-stale code
+- Writing any import path or library/framework/SDK access pattern from memory — verify the current shape against official docs first
 
 **Not needed when:**
 - Tools already in the project's dependency files — read the project instead
@@ -33,21 +33,17 @@ Your training data goes stale. Outdated guidance is worse than no guidance.
 - Internal project patterns — read the codebase
 - General programming concepts without versioned APIs
 
-This applies everywhere — formal skill execution, casual conversation, follow-up questions, subagent prompts. No exceptions for "I'm pretty sure." If you're about to state a specific version number, flag name, import path, API signature, or behavioral detail from memory — stop and search.
-
 ## Code Practices
 
 **Dead code first / phased execution:** Before structural refactors on files >300 LOC, remove dead code first (separate commit). Break multi-file refactors into phases of ≤5 files — complete, verify, get approval before each next phase.
 
 **Senior dev standard:** Don't settle for "simplest approach" when architecture is flawed, state is duplicated, or patterns are inconsistent. Ask: "What would a perfectionist senior dev reject in code review?" Fix it.
 
-**Verification before completion:** Never report done without running the project's type-checker and linter, fixing ALL errors. If none configured, state that explicitly.
-
 **Never escape the type system to move on:** no `as` (except `as const`), `any`, `@ts-ignore`/`@ts-expect-error`/`@ts-nocheck`, non-null `!`, or lint-disable comments to silence an error. Fix the type (narrowing, guards, schema validation, `satisfies`). If you genuinely can't, dispatch a subagent with the right skill; if it still fails, STOP and ask — never silently cast or suppress.
 
 ## Rules of React
 
-Follow the official Rules of React: https://react.dev/reference/rules — components and hooks are pure, React calls them, hooks only at the top level.
+See `.claude/rules/react.md` (auto-injected for `**/*.tsx` files). That file is the single source of truth for React purity, hooks, effects, component splitting, and module organization rules.
 
 ## Testing
 
@@ -83,11 +79,9 @@ Implementation dispatches run **foreground (synchronous)** — the parent waits 
 | Code review | `opus` |
 | Long-horizon autonomous workers, complex migrations, escalation after a weak result | `opus` |
 
-### Teams & nesting
+### Nesting
 
-- **Parallel subagent dispatch** is the default for independent fan-out — always cheaper and faster than a team when results only need to flow back to the parent.
-- **Agent Teams** (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, experimental): only when **peer dialogue itself is the value** — competing-hypothesis debugging (theories refute each other to converge), multi-perspective review where perspectives challenge each other, cross-layer work negotiating a shared API contract. 3–5 teammates; teammates never edit the same file; one team at a time; no `/resume` support, so avoid teams in sessions likely to be interrupted.
-- **Nested subagents** (max depth 5): a dispatched worker may offload messy exploration (bulk searches, log digging) to a child scout and keep its own context clean — chiefly useful inside workers that own large parallel units. Models get cheaper with depth (worker `sonnet` → scout `haiku`). Default ceiling is depth 2 (parent → worker → scout); every extra level multiplies token cost, so justify deeper nesting explicitly. Never nest for sequential work — do it inline instead.
+A dispatched worker may offload messy exploration to a child scout to keep its own context clean. Models get cheaper with depth (worker `sonnet` → scout `haiku`). Default ceiling is depth 2 (parent → worker → scout); every extra level multiplies token cost, so justify deeper nesting explicitly. Never nest for sequential work — do it inline instead.
 
 ### Review
 
@@ -147,7 +141,4 @@ When generating a mini-service, use `Agent(isolation: "worktree")`. The agent sh
 
 ### Quality gates
 
-- **Per-edit hook**: lint + typecheck on every Edit/Write (blocking)
-- **Stop hook**: typecheck / lint / format gate before turn ends (blocking)
-- **Pre-commit hook**: code-reviewer agent must be dispatched before git commit
-- **Git hooks**: lefthook runs oxlint --fix + oxfmt --write on pre-commit, check + typecheck on pre-push
+Enforcement is in `.claude/settings.json` hooks and `lefthook.yml`. Do not duplicate the gate list here — read those files for the current set.
