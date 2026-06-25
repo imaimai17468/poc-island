@@ -53,6 +53,20 @@ bun run dev              # http://localhost:5173
 | `bun run db:seed:local` | デモデータ投入 |
 | `bun run db:generate` | スキーマ変更後にマイグレーション生成 |
 
+## Generating a mini-service
+
+Claude Code セッション内で `/generate-service` を実行し、プロンプトを入力するだけ。
+
+```
+/generate-service カウンターアプリを作って
+```
+
+自動で以下が実行される:
+1. worktree agent がミニアプリ (Hono on Workers) をスキャフォールド
+2. `wrangler dev --port <自動採番>` でローカル起動
+3. Gallery に登録
+4. URL を報告
+
 ## API
 
 ### `GET /api/services`

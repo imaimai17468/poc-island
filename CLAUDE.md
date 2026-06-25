@@ -132,12 +132,9 @@ POST to `/api/services`:
 }
 ```
 
-### Worktree agent service generation
+### Generating a mini-service
 
-When generating a mini-service, use `Agent(isolation: "worktree")`. The agent should:
-1. Create a Cloudflare Worker app (Hono recommended)
-2. Start it with `wrangler dev --port <PORT>`
-3. Register it via `POST /api/services`
+Use the `/generate-service` skill. It automates the full flow: worktree agent spawn → Hono app scaffold → local start → Gallery registration. Never generate a service manually — always go through the skill so port assignment and registration are consistent.
 
 ### Quality gates
 
