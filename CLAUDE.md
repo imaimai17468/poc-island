@@ -134,7 +134,14 @@ POST to `/api/services`:
 
 ### Generating a mini-service
 
-Use the `/generate-service` skill. It automates the full flow: worktree agent spawn → Hono app scaffold → local start → Gallery registration. This skill auto-triggers when the user describes an app or service to build (e.g. "カウンターアプリを作って", "TODO app", "make a timer") — the user does not need to invoke it explicitly. Never generate a service manually — always go through the skill so port assignment and registration are consistent.
+Use the `/generate-service` skill. It automates the full flow:
+
+1. Worktree agent replaces `src/routes/index.tsx` in a poc-island worktree copy
+2. Starts `bun run dev --port <auto-assigned>` from the worktree
+3. Launches `cloudflared tunnel` to get a public URL
+4. Registers the public URL in the Gallery
+
+This skill auto-triggers when the user describes an app or service to build (e.g. "カウンターアプリを作って", "TODO app", "make a timer") — the user does not need to invoke it explicitly. Never generate a service manually — always go through the skill so port assignment, tunnel, and registration are consistent.
 
 ### Quality gates
 

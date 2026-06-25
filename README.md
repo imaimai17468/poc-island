@@ -5,20 +5,21 @@
 ## Architecture
 
 ```
-[外部入力] --> [ローカル Claude Code]
-                      |
-            Agent(isolation: "worktree")
-            ・worktree内でミニアプリ生成
-            ・wrangler dev --port <PORT>
-                      |
-            cloudflared tunnel で公開
-                      |
-            [Gallery D1 に URL 登録]
+[プロンプト] --> [Claude Code]
+                     |
+           Agent(isolation: "worktree")
+           ・poc-island コピーの index.tsx を差し替え
+           ・bun run dev --port <PORT>
+                     |
+           cloudflared tunnel --url localhost:<PORT>
+           → https://xxx.trycloudflare.com
+                     |
+           [Gallery D1 に公開 URL 登録]
 ```
 
-- **Gallery App** — TanStack Start on Cloudflare Workers。生成されたサービスの一覧・プレビュー
-- **Service Generation** — Claude Code の worktree agent がミニアプリを生成・起動
-- **Publishing** — `cloudflared tunnel` でローカルサーバーを公開。デプロイ不要
+- **Gallery App (port 5173)** — TanStack Start on Workers。生成サービスの一覧・iframe プレビュー
+- **Mini Apps (port 3001~)** — 各 worktree が独立した TanStack Start アプリとして起動
+- **Publishing** — 各ミニアプリに `cloudflared tunnel` で公開 URL を付与。デプロイ不要
 
 ## Tech Stack
 
@@ -55,17 +56,17 @@ bun run dev              # http://localhost:5173
 
 ## Generating a mini-service
 
-Claude Code セッション内で `/generate-service` を実行し、プロンプトを入力するだけ。
+Claude Code セッション内でアプリの説明を入力するだけ（`/generate-service` は自動発火）。
 
 ```
-/generate-service カウンターアプリを作って
+カウンターアプリを作って
 ```
 
 自動で以下が実行される:
-1. worktree agent がミニアプリ (Hono on Workers) をスキャフォールド
-2. `wrangler dev --port <自動採番>` でローカル起動
-3. Gallery に登録
-4. URL を報告
+1. worktree agent が poc-island のコピーで `index.tsx` を差し替え
+2. `bun run dev --port <自動採番>` でローカル起動
+3. `cloudflared tunnel` で公開 URL を取得
+4. Gallery に公開 URL を登録・報告
 
 ## API
 
