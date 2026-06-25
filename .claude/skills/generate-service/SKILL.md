@@ -1,6 +1,6 @@
 ---
 name: generate-service
-description: Generate a mini-service from a prompt. Spawns a worktree agent that replaces the index page of a poc-island worktree copy, starts it locally, exposes it via cloudflared tunnel, and registers the public URL in the Gallery. Use this whenever the user wants to create a new mini-service or app — including when they describe an app idea without explicitly invoking this skill.
+description: Generate a mini-service from a prompt. Spawns a worktree agent that replaces the index page of a poc-island worktree copy, starts it locally, exposes it via bunx cloudflared tunnel, and registers the public URL in the Gallery. Use this whenever the user wants to create a new mini-service or app — including when they describe an app idea without explicitly invoking this skill.
 user_invocable: true
 autoTrigger: true
 ---
@@ -13,19 +13,21 @@ Creates a mini-service by replacing the index page in a poc-island worktree copy
 
 The Gallery dev server must be running (`bun run dev` in the poc-island root). If it is not running, start it first with `Bash(run_in_background: true)`.
 
-`cloudflared` must be installed on the machine.
+`cloudflared` is run via `bunx cloudflared` — no global install required.
+
+`vite.config.ts` must have `server.allowedHosts: [".trycloudflare.com"]` — without this, Vite blocks requests from tunnel URLs. This is already configured in the main project and inherited by worktrees.
 
 ## Steps
 
 ### 1. Assign a port
 
-Find the next available port by querying the Gallery API:
+Find the next available port. Service URLs may be tunnel URLs (no port) or localhost URLs, so count registered services and offset from 3001:
 
 ```bash
-curl -s http://localhost:5173/api/services | jq '[.[].url | capture(":(?<p>[0-9]+)") | .p | tonumber] | max // 3000 | . + 1'
+curl -s http://localhost:5173/api/services | jq 'length + 3001'
 ```
 
-If the API returns an empty array or no ports are found, use port `3001`.
+If the API returns an empty array, use port `3001`. If the computed port is already in use (`lsof -i:<PORT>`), increment until a free one is found.
 
 ### 2. Generate an ID and name
 
@@ -68,13 +70,10 @@ Follow these steps exactly:
 4. Update the header title in src/components/shared/header/Header.tsx:
    Change "poc-island" to "<NAME>"
 
-5. Change the port in wrangler.toml by adding under [dev]:
-   [dev]
-   port = <PORT>
-
+5. Generate Cloudflare types (required for typecheck): npx wrangler types --env-interface CloudflareEnv
 6. Run: npx tsr generate
 7. Verify: bun run typecheck (fix any errors)
-8. Do NOT start the dev server — the parent will handle that.
+8. Do NOT start the dev server or modify wrangler.toml — the parent handles port assignment and startup.
 
 Return a JSON summary as your final message:
 {"id": "<SERVICE_ID>", "name": "<NAME>", "description": "<one-line description>", "port": <PORT>}
@@ -82,10 +81,10 @@ Return a JSON summary as your final message:
 
 ### 4. Start the service
 
-After the agent returns, start the dev server in background from the worktree:
+After the agent returns, start the dev server in background from the worktree with the assigned port:
 
 ```bash
-cd <worktree_path> && bun run dev &
+cd <worktree_path> && bun run dev --port <PORT> &
 ```
 
 Wait a few seconds, then verify it responds:
@@ -96,10 +95,10 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:<PORT>/
 
 ### 5. Start the tunnel
 
-Launch `cloudflared tunnel` in background to get a public URL:
+Launch `bunx cloudflared tunnel` in background to get a public URL:
 
 ```bash
-cloudflared tunnel --url http://localhost:<PORT> 2>&1 &
+bunx cloudflared tunnel --url http://localhost:<PORT> 2>&1 &
 TUNNEL_PID=$!
 ```
 
@@ -107,13 +106,13 @@ Wait for the tunnel URL to appear (it prints to stderr). Extract it:
 
 ```bash
 sleep 5
-TUNNEL_URL=$(cloudflared tunnel --url http://localhost:<PORT> 2>&1 & sleep 5 && kill $! 2>/dev/null; wait $! 2>/dev/null)
+TUNNEL_URL=$(bunx cloudflared tunnel --url http://localhost:<PORT> 2>&1 & sleep 5 && kill $! 2>/dev/null; wait $! 2>/dev/null)
 ```
 
 A more reliable approach — start in background and poll the log:
 
 ```bash
-cloudflared tunnel --url http://localhost:<PORT> > /tmp/tunnel-<ID>.log 2>&1 &
+bunx cloudflared tunnel --url http://localhost:<PORT> > /tmp/tunnel-<ID>.log 2>&1 &
 TUNNEL_PID=$!
 # Poll for the URL (appears in stderr, redirected to the log)
 for i in $(seq 1 15); do
@@ -148,5 +147,5 @@ Tell the user:
 - If the worktree agent fails, report the error and do not register a broken service.
 - If the port is already in use, increment and retry.
 - If the Gallery API is unreachable, remind the user to start `bun run dev`.
-- If `cloudflared` is not installed, fall back to localhost URL and tell the user to install it.
+- If `bunx cloudflared` fails, fall back to localhost URL and warn the user.
 - If the tunnel fails to start, register with localhost URL and warn the user.

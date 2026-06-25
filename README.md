@@ -11,7 +11,7 @@
            ・poc-island コピーの index.tsx を差し替え
            ・bun run dev --port <PORT>
                      |
-           cloudflared tunnel --url localhost:<PORT>
+           bunx cloudflared tunnel --url localhost:<PORT>
            → https://xxx.trycloudflare.com
                      |
            [Gallery D1 に公開 URL 登録]
@@ -19,7 +19,7 @@
 
 - **Gallery App (port 5173)** — TanStack Start on Workers。生成サービスの一覧・iframe プレビュー
 - **Mini Apps (port 3001~)** — 各 worktree が独立した TanStack Start アプリとして起動
-- **Publishing** — 各ミニアプリに `cloudflared tunnel` で公開 URL を付与。デプロイ不要
+- **Publishing** — 各ミニアプリに `bunx cloudflared tunnel` で公開 URL を付与。デプロイ不要
 
 ## Tech Stack
 
@@ -49,7 +49,7 @@ bun run dev              # http://localhost:5173
 | `bun run check` | lint + format |
 | `bun run typecheck` | tsgo で型チェック |
 | `bun run test` | vitest でテスト実行 |
-| `bun run tunnel` | cloudflared tunnel で公開 |
+| `bun run tunnel` | bunx cloudflared tunnel で公開 |
 | `bun run db:push:local` | ローカル D1 リセット + マイグレーション適用 |
 | `bun run db:seed:local` | デモデータ投入 |
 | `bun run db:generate` | スキーマ変更後にマイグレーション生成 |
@@ -65,7 +65,7 @@ Claude Code セッション内でアプリの説明を入力するだけ（`/gen
 自動で以下が実行される:
 1. worktree agent が poc-island のコピーで `index.tsx` を差し替え
 2. `bun run dev --port <自動採番>` でローカル起動
-3. `cloudflared tunnel` で公開 URL を取得
+3. `bunx cloudflared tunnel` で公開 URL を取得
 4. Gallery に公開 URL を登録・報告
 
 ## API

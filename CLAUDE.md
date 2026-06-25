@@ -116,7 +116,7 @@ bun run knip             # Check for unused exports
 bun run db:push:local    # Reset + apply migrations to local D1
 bun run db:seed:local    # Seed demo data
 bun run db:generate      # Generate new migration after schema change
-bun run tunnel           # Expose via cloudflared tunnel
+bun run tunnel           # Expose via bunx cloudflared tunnel
 ```
 
 ### Registering a service
@@ -138,7 +138,7 @@ Use the `/generate-service` skill. It automates the full flow:
 
 1. Worktree agent replaces `src/routes/index.tsx` in a poc-island worktree copy
 2. Starts `bun run dev --port <auto-assigned>` from the worktree
-3. Launches `cloudflared tunnel` to get a public URL
+3. Launches `bunx cloudflared tunnel` to get a public URL
 4. Registers the public URL in the Gallery
 
 This skill auto-triggers when the user describes an app or service to build (e.g. "カウンターアプリを作って", "TODO app", "make a timer") — the user does not need to invoke it explicitly. Never generate a service manually — always go through the skill so port assignment, tunnel, and registration are consistent.

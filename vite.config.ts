@@ -5,6 +5,9 @@ import tailwindcss from "@tailwindcss/vite";
 import { cloudflare } from "@cloudflare/vite-plugin";
 
 export default defineConfig({
+  server: {
+    allowedHosts: [".trycloudflare.com"],
+  },
   resolve: {
     tsconfigPaths: true,
   },

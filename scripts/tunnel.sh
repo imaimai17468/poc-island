@@ -7,4 +7,4 @@ echo "Starting cloudflared tunnel for localhost:$PORT..."
 echo "Press Ctrl+C to stop"
 echo ""
 
-cloudflared tunnel --url "http://localhost:$PORT"
+bunx cloudflared tunnel --url "http://localhost:$PORT"
