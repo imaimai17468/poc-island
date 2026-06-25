@@ -7,6 +7,9 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 export default defineConfig({
   server: {
     allowedHosts: [".trycloudflare.com"],
+    watch: {
+      ignored: ["**/.claude/worktrees/**"],
+    },
   },
   resolve: {
     tsconfigPaths: true,
