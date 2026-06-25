@@ -56,17 +56,55 @@ bun run dev              # http://localhost:5173
 
 ## Generating a mini-service
 
-Claude Code セッション内でアプリの説明を入力するだけ（`/generate-service` は自動発火）。
+### ローカルで使う場合
+
+```bash
+# 1. セットアップ（初回のみ）
+bun install
+bun run db:push:local
+
+# 2. Gallery を起動
+bun run dev                    # → http://localhost:5173
+
+# 3. Claude Code セッションでアプリを依頼
+#    （/generate-service は自動発火 — 明示的に呼ぶ必要なし）
+```
 
 ```
 カウンターアプリを作って
 ```
 
-自動で以下が実行される:
-1. worktree agent が poc-island のコピーで `index.tsx` を差し替え
-2. `bun run dev --port <自動採番>` でローカル起動
-3. `bunx cloudflared tunnel` で公開 URL を取得
-4. Gallery に公開 URL を登録・報告
+```
+# 4. 自動で以下が実行される:
+#    ① worktree agent が poc-island のコピーで index.tsx を差し替え
+#    ② bun run dev --port <自動採番> でローカル起動
+#    ③ bunx cloudflared tunnel で公開 URL を取得
+#    ④ Gallery に公開 URL を登録
+#
+# 5. Gallery が 5 秒ごとに自動更新 — リロード不要で一覧に表示される
+#    http://localhost:5173 で確認
+```
+
+### ギャラリーを公開する場合
+
+ギャラリー自体を外部公開して、他のデバイスやメンバーからアクセスできるようにする。
+
+```bash
+# 1. 上記のローカルセットアップを完了させる
+
+# 2. 別ターミナルで Gallery にトンネルを張る
+bun run tunnel                 # → https://xxx.trycloudflare.com
+
+# 3. トンネル URL を共有
+#    ミニアプリは個別にトンネルが張られるため、
+#    Gallery 経由で全サービスにアクセス可能
+```
+
+```
+共有 URL の例:
+  Gallery:      https://xxx.trycloudflare.com
+  Mini App:     https://yyy.trycloudflare.com  ← Gallery の iframe 内で表示
+```
 
 ## API
 
